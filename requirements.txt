@@ -1,0 +1,9 @@
+asyncio
+langchain
+langchain_google_genai
+langchain_unstructured
+langchain_text_splitters
+langdetect
+pinecone
+python-dotenv
+redis
