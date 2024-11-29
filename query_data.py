@@ -23,7 +23,7 @@ Answer the question only based on the following two kinds of contents:
 ---
 
 Answer the question based on the above contents: {question}
-Don't mention the word 'context' in your response.
+Do not mention the word 'provided text' in your response, use 'my knowledge' instead.
 If the contexts have no relation with the question, you must answer 'Your question goes beyond my understanding'.
 """
 
@@ -52,7 +52,7 @@ def main():
 
 def query_rag(query_text, language="zh-TW"):
     if detect(query_text) != "en":
-        translate_query_text = translate_text("English", query_text)
+        translate_query_text = translate_text("en", query_text)
 
     # Search Pinecone for similar contexts
     context_results = pc.search_documents(translate_query_text)
