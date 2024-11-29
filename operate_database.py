@@ -14,12 +14,19 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 load_dotenv()
 
 DATA_PATH = glob.glob("data/*.txt")
+MAX_RECORD_COUNT = 5
 
 
 class MongoDBClient:
 
     def __init__(self):
         self.client = MongoClient(os.getenv("MONGO_URI"), server_api=ServerApi("1"))
+        self.db = self.client["foodiary"]
+
+    def save_messages(self, user_id, messages):
+        db = self.client["chat_records"]
+        collection = db[user_id]
+        collection.insert_many(messages)
 
 
 class RedisClient:
@@ -35,6 +42,8 @@ class RedisClient:
     def save_message(self, user_id, message):
         key = f"chat:{user_id}"
         self.client.rpush(key, json.dumps(message))
+        if self.client.llen(key) > MAX_RECORD_COUNT:
+            self.client.lpop(key)
 
     def get_recent_messages(self, user_id, count=5):
         key = f"chat:{user_id}"
@@ -132,4 +141,5 @@ if __name__ == "__main__":
     # pc.search_documents("How to make high protein meals?")
     rc = RedisClient()
     messages = rc.get_recent_messages("user_0")
+    print(len(messages))
     print(messages)
