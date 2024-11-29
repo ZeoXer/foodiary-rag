@@ -6,4 +6,5 @@ langchain_text_splitters
 langdetect
 pinecone
 python-dotenv
+pymongo[srv]
 redis
