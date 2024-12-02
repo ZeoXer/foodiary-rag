@@ -65,12 +65,12 @@ class RAGChatbot:
         translate_response_text = self.translate_text(language, response_text)
 
         print(translate_response_text)
-        messages = self.make_message(user_id, query_text, translate_response_text)
-        record_results.append(messages)
-        self.redis_client.save_message(user_id, messages)
-        self.mongodb_client.save_chat_messages(user_id, record_results)
-
         return translate_response_text
+
+    def backup_conversation(self, user_id, query_text, response_text):
+        message = self.make_message(user_id, query_text, response_text)
+        self.redis_client.save_message(user_id, message)
+        self.mongodb_client.save_message(user_id, message)
 
     def translate_text(self, query_text, language):
         translate_prompt_template = ChatPromptTemplate.from_template(
