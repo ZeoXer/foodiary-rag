@@ -9,14 +9,13 @@ load_dotenv()
 class MongoDBClient:
 
     def __init__(self):
-        self.client = MongoClient(os.getenv("MONGO_URI"), server_api=ServerApi("1"))
+        self.client = MongoClient(os.getenv("MONGODB_URI"), server_api=ServerApi("1"))
 
-    def save_chat_messages(self, user_id, messages):
+    def save_message(self, user_id, message):
         db = self.client["chat_records"]
         collection = db[user_id]
         try:
-            print("messages", messages)
-            collection.insert_many(messages)
+            collection.insert_one(message)
         except Exception as e:
             if "duplicate key" not in str(e):
                 print(f"save messages error: {str(e)}")
