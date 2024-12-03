@@ -72,6 +72,10 @@ class RAGChatbot:
         self.redis_client.save_message(user_id, message)
         self.mongodb_client.save_message(user_id, message)
 
+    def get_chat_records(self, user_id, before_timestamp=None):
+        chat_records = self.mongodb_client.get_chat_messages(user_id, before_timestamp)
+        return chat_records
+
     def translate_text(self, query_text, language):
         translate_prompt_template = ChatPromptTemplate.from_template(
             TRANSLATE_PROMPT_TEMPLATE
