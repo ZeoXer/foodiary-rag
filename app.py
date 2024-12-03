@@ -15,10 +15,19 @@ def health():
 
 @app.route("/getChatRecords/<string:user_id>", methods=["GET"])
 def get_chat_records(user_id):
-    before_timestamp = float(request.args.get("timestamp"))
+    before_timestamp = request.args.get("timestamp")
 
     if not user_id:
         return jsonify({"error": "user_id is required"}), status.HTTP_400_BAD_REQUEST
+
+    if before_timestamp:
+        try:
+            before_timestamp = float(before_timestamp)
+        except ValueError:
+            return (
+                jsonify({"error": "timestamp should be a float"}),
+                status.HTTP_400_BAD_REQUEST,
+            )
 
     chat_records = chat_bot.get_chat_records(user_id, before_timestamp)
     for record in chat_records:
