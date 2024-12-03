@@ -1,5 +1,5 @@
 import threading
-from flask import Flask, jsonify, request, after_this_request
+from flask import Flask, jsonify, request
 from flask_api import status
 from RAG_bot import RAGChatbot
 
@@ -22,6 +22,7 @@ def get_chat_records():
 def chat_with_bot():
     user_id = request.json.get("user_id")
     query_text = request.json.get("query_text")
+
     response_text = chat_bot.query(user_id, query_text)
     threading.Thread(
         target=chat_bot.backup_conversation, args=(user_id, query_text, response_text)
