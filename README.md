@@ -26,7 +26,7 @@ https://foodiary-rag.zeoxer.com
 ### Example
 
 > ```shell
-> $ curl -X POST -H "Content-Type: application/json" --data '{ "user_id": "user_0", "query_text": "請推薦一份適合運動過後食用的食物組合" }' https://foodiary-rag.zeoxer.com/chatWithBot
+> curl -X POST -H "Content-Type: application/json" --data '{ "user_id": "user_0", "query_text": "請推薦一份適合運動過後食用的食物組合" }' https://foodiary-rag.zeoxer.com/chatWithBot
 > ```
 
 </details>
@@ -50,7 +50,7 @@ https://foodiary-rag.zeoxer.com
 ### Example
 
 > ```shell
-> $ curl -X GET -H "Content-Type: application/json" https://foodiary-rag.zeoxer.com/getChatRecords/user_0?timestamp=
+> curl -X GET -H "Content-Type: application/json" https://foodiary-rag.zeoxer.com/getChatRecords/user_0?timestamp=
 > ```
 
 </details>
