@@ -54,4 +54,3 @@ https://foodiary-rag.zeoxer.com
 > ```
 
 </details>
-```
