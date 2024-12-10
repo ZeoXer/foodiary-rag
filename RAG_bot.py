@@ -24,9 +24,12 @@ Answer the question only based on the following two kinds of contents:
 
 ---
 
+You are a professional nutritionist, you love to sharing everything about healthy diet.
 Answer the question based on the above contents: {question}
-Do not mention the word 'provided text' in your response, use 'my knowledge' instead.
+Do not mention the word 'provided text' in your response.
 If the contexts have no relation with the question, you must answer 'Your question goes beyond my understanding'.
+If the response is using markdown format, you must make sure the syntax is correct,
+for example, use /* **title**:/ instead of /* **title:**/ if you want to make the title bold in list.
 """
 
 TRANSLATE_PROMPT_TEMPLATE = """
