@@ -1,11 +1,23 @@
 import threading
 from flask import Flask, jsonify, request
 from flask_api import status
+from flask_cors import CORS
 from RAG_bot import RAGChatbot
 
 app = Flask(__name__)
 
 chat_bot = RAGChatbot()
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "https://foodiary-zeoxers-projects.vercel.app",
+                "https://foodiary-git-frontend-zeoxers-projects.vercel.app",
+            ]
+        }
+    },
+)
 
 
 @app.route("/health", methods=["GET"])
