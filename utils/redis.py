@@ -31,6 +31,13 @@ class RedisClient:
         current_time = time.time()
         self.client.zadd(self.activity_set, {user_id: current_time})
 
+    def load_backup_messages(self, user_id, messages):
+        key = f"chat:{user_id}"
+        for message in messages:
+            self.client.rpush(key, json.dumps(message))
+
+        self.client.expire(key, self.expire_time)
+
     def get_recent_messages(self, user_id, count=5):
         key = f"chat:{user_id}"
         messages = self.client.lrange(key, -count, -1)
