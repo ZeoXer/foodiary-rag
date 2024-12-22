@@ -1,4 +1,4 @@
-import asyncio
+import threading
 import time
 import boto3
 import os
@@ -90,10 +90,10 @@ async def chat_with_bot():
     g.end_time = time.time()
     latency = g.end_time - g.start_time
 
-    asyncio.gather(
-        chat_bot.backup_conversation(user_id, query_text, response_text),
-        send_to_cloudwatch("chat_with_bot", latency),
-    )
+    threading.Thread(
+        target=chat_bot.backup_conversation, args=(user_id, query_text, response_text)
+    ).start()
+    threading.Thread(target=send_to_cloudwatch, args=("chat_with_bot", latency)).start()
 
     return jsonify({"response": response_text}), status.HTTP_200_OK
 
