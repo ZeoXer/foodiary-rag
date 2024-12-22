@@ -1,8 +1,14 @@
 import threading
-from flask import Flask, jsonify, request
+import time
+import boto3
+import os
+from dotenv import load_dotenv
+from flask import Flask, jsonify, request, g
 from flask_api import status
 from flask_cors import CORS
 from RAG_bot import RAGChatbot
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -18,6 +24,40 @@ CORS(
         }
     },
 )
+
+
+@app.before_request
+def start_timer():
+    if request.endpoint == "chat_with_bot":
+        g.start_time = time.time()
+
+
+@app.after_request
+def log_latency():
+    if request.endpoint == "chat_with_bot":
+        if hasattr(g, "start_time"):
+            latency = time.time() - g.start_time
+            send_to_cloudwatch("chat_with_bot", latency)
+
+
+def send_to_cloudwatch(endpoint, latency):
+    client = boto3.client(
+        "cloudwatch",
+        region_name=os.getenv("AWS_REGION"),
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    )
+    client.put_metric_data(
+        Namespace="FooDiary",
+        MetricData=[
+            {
+                "MetricName": "APILatency",
+                "Dimensions": [{"Name": "Endpoint", "Value": endpoint}],
+                "Value": latency * 1000,
+                "Unit": "Milliseconds",
+            }
+        ],
+    )
 
 
 @app.route("/health", methods=["GET"])

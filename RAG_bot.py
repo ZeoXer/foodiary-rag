@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+import threading
 from dotenv import load_dotenv
 from langdetect import detect
 from langchain.prompts import ChatPromptTemplate
@@ -49,6 +50,8 @@ class RAGChatbot:
         self.pinecone_index = PineconeIndex()
         self.redis_client = RedisClient()
         self.mongodb_client = MongoDBClient()
+
+        threading.Thread(target=self.periodic_cleaner).start()
 
     def query(self, user_id, query_text, language="zh-TW"):
         if detect(query_text) != "en":
@@ -114,6 +117,11 @@ class RAGChatbot:
             formatted_messages.extend(formatted_content)
 
         return "\n---".join(formatted_messages)
+
+    def periodic_cleaner(self, interval=3600):
+        while True:
+            self.redis_client.clean_oldest_users()
+            time.sleep(interval)
 
 
 def main():
