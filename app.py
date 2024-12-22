@@ -1,4 +1,4 @@
-import threading
+import asyncio
 import time
 import boto3
 import os
@@ -24,20 +24,6 @@ CORS(
         }
     },
 )
-
-
-@app.before_request
-def start_timer():
-    if request.endpoint == "chat_with_bot":
-        g.start_time = time.time()
-
-
-@app.after_request
-def log_latency(response):
-    if request.endpoint == "chat_with_bot":
-        if hasattr(g, "start_time"):
-            latency = time.time() - g.start_time
-            send_to_cloudwatch("chat_with_bot", latency)
 
 
 def send_to_cloudwatch(endpoint, latency):
@@ -99,10 +85,15 @@ def chat_with_bot():
             status.HTTP_400_BAD_REQUEST,
         )
 
+    g.start_time = time.time()
     response_text = chat_bot.query(user_id, query_text)
-    threading.Thread(
-        target=chat_bot.backup_conversation, args=(user_id, query_text, response_text)
-    ).start()
+    g.end_time = time.time()
+    latency = g.end_time - g.start_time
+
+    asyncio.create_task(
+        chat_bot.backup_conversation(user_id, query_text, response_text)
+    )
+    asyncio.create_task(send_to_cloudwatch("chat_with_bot", latency))
 
     return jsonify({"response": response_text}), status.HTTP_200_OK
 
