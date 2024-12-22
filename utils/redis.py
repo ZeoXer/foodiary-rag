@@ -18,7 +18,7 @@ class RedisClient:
             decode_responses=True,
         )
         self.expire_time = EXPIRE_TIME
-        self.activitiy_set = "chat_ctivity"
+        self.activity_set = "chat_activity"
 
     def save_message(self, user_id, message):
         key = f"chat:{user_id}"
@@ -29,7 +29,7 @@ class RedisClient:
         self.client.expire(key, self.expire_time)
 
         current_time = time.time()
-        self.client.zadd(self.activitiy_set, {user_id: current_time})
+        self.client.zadd(self.activity_set, {user_id: current_time})
 
     def get_recent_messages(self, user_id, count=5):
         key = f"chat:{user_id}"
