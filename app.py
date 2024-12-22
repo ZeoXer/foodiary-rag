@@ -33,7 +33,7 @@ def start_timer():
 
 
 @app.after_request
-def log_latency():
+def log_latency(response):
     if request.endpoint == "chat_with_bot":
         if hasattr(g, "start_time"):
             latency = time.time() - g.start_time
