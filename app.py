@@ -75,7 +75,7 @@ def get_chat_records(user_id):
 
 
 @app.route("/chatWithBot", methods=["POST"])
-def chat_with_bot():
+async def chat_with_bot():
     user_id = request.json.get("user_id")
     query_text = request.json.get("query_text")
 
@@ -90,10 +90,10 @@ def chat_with_bot():
     g.end_time = time.time()
     latency = g.end_time - g.start_time
 
-    asyncio.create_task(
-        chat_bot.backup_conversation(user_id, query_text, response_text)
+    asyncio.gather(
+        chat_bot.backup_conversation(user_id, query_text, response_text),
+        send_to_cloudwatch("chat_with_bot", latency),
     )
-    asyncio.create_task(send_to_cloudwatch("chat_with_bot", latency))
 
     return jsonify({"response": response_text}), status.HTTP_200_OK
 
