@@ -3,7 +3,6 @@ import os
 import time
 import threading
 from dotenv import load_dotenv
-from langdetect import detect
 from langchain.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from utils.pinecone import PineconeIndex
@@ -54,8 +53,7 @@ class RAGChatbot:
         threading.Thread(target=self.periodic_cleaner).start()
 
     def query(self, user_id, query_text, language="zh-TW"):
-        if detect(query_text) != "en":
-            translate_query_text = self.translate_text("en", query_text)
+        translate_query_text = self.translate_text("en", query_text)
 
         context_results = self.pinecone_index.search_documents(translate_query_text)
         record_results = self.redis_client.get_recent_messages(user_id)
