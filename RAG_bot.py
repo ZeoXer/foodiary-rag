@@ -55,9 +55,21 @@ class RAGChatbot:
     def query(self, user_id, query_text, language="zh-TW"):
         translate_query_text = self.translate_text("en", query_text)
 
+        # 搜尋 Pinecone 找相關資料
         context_results = self.pinecone_index.search_documents(translate_query_text)
+        # 搜尋 Redis 找對話紀錄
         record_results = self.redis_client.get_recent_messages(user_id)
+        # cache miss 則從 MongoDB 撈，並存回 Redis
+        if not record_results:
+            record_results = self.get_chat_records(user_id)
+            for record in record_results:
+                if "_id" in record:
+                    del record["_id"]
+            threading.Thread(
+                self.redis_client.load_backup_messages(user_id, record_results)
+            ).start()
 
+        # 組合 prompt
         context_text = "\n\n---\n\n".join(context_results)
         record_text = self.format_chat_messages(record_results)
         prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
