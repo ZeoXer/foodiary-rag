@@ -2,6 +2,7 @@ import os
 import json
 import time
 import redis
+import threading
 
 MAX_RECORD_COUNT = 5
 MAX_USER_COUNT = 9000
@@ -19,6 +20,9 @@ class RedisClient:
         )
         self.expire_time = EXPIRE_TIME
         self.activity_set = "chat_activity"
+        self.pubsub = self.client.pubsub()
+        self.pubsub.psubscribe("__keyevent@0__:expired")
+        threading.Thread(target=self.listen_expired_keys).start()
 
     def save_message(self, user_id, message):
         key = f"chat:{user_id}"
@@ -50,3 +54,11 @@ class RedisClient:
             key = f"chat:{user_id}"
             self.client.delete(key)
             self.client.zrem(self.activity_set, user_id)
+
+    def listen_expired_keys(self):
+        for message in self.pubsub.listen():
+            if message["type"] == "pmessage":
+                expired_key = message["data"]
+                if expired_key.startswith("chat:"):
+                    user_id = expired_key.split(":")[1]
+                    self.client.zrem(self.activity_set, user_id)
